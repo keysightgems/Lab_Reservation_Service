@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -88,19 +87,6 @@ func createInventory(listOfDicts []map[string]interface{}, linksOfDicts []map[st
 		manufacturer := dict["Manufacturer"].(string)
 		state := dict["State"].(string)
 		interfaces := dict["interfaces"].([]interface{})
-		// id, idExists := dict["Id"].(float64)
-		// name, nameExists := dict["Name"].(string)
-		// deviceType, deviceTypeExists := dict["DeviceType"].(string)
-		// manufacturer, manufacturerExists := dict["Manufacturer"].(string)
-		// state, stateExists := dict["State"].(string)
-		// interfaces, interfacesExists := dict["interfaces"].([]interface{})
-		// Check if the keys exist in the dictionary
-		// if idExists && nameExists && deviceTypeExists && stateExists && manufacturerExists && interfacesExists {
-		// 	// Print or use the values
-		// 	fmt.Printf("ID: %f, Name: %s, Type: %s, Vendor: %s, Interface: %s, State: %s\n", id, name, deviceType, manufacturer, interfaces, state)
-		// } else {
-		// 	fmt.Println("Variable type not matching in the dictionary.")
-		// }
 
 		idCounter := &Counter{}
 		if strings.ToLower(inventoryType) == "all" {
@@ -162,39 +148,26 @@ func UpdateInventory() {
 		log.Fatal(err) // Log the error and terminate the program
 	}
 	if exists {
-		update_cmd := exec.Command("python", "get_update_inventory.py", "update_devices_data", "output.json")
-		// output, err := cmd.Output()
-		update_output, err := update_cmd.CombinedOutput()
+		updateDevicesData(filePath)
 		if err != nil {
 			fmt.Println("Error executing Python script:", err)
 			return
 		} else {
-			fmt.Println("Device details updated successfully on Netbox as per testbed details.", string(update_output))
+			fmt.Println("Device details updated successfully on Netbox as per testbed details.")
 		}
 	} else {
 		log.Fatal("Output file does not exist.")
 	}
 }
 func GetCreateInvFromNetbox() {
-	cmd := exec.Command("python", "get_update_inventory.py", "get_devices_data")
-	// output, err := cmd.Output()
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println("Error executing Python script:", err)
-		return
-	}
+	output := getDevicesData()
 	var listOfDicts []map[string]interface{}
-	err = json.Unmarshal(output, &listOfDicts)
+	err := json.Unmarshal(output, &listOfDicts)
 	if err != nil {
 		fmt.Println("Error parsing JSON:", err)
 		return
 	}
-	getLinks := exec.Command("python", "get_update_inventory.py", "get_devices_links")
-	linksoutput, err := getLinks.CombinedOutput()
-	if err != nil {
-		fmt.Println("Error executing Python script:", err)
-		return
-	}
+	linksoutput := getDevicesLinks()
 	var linksOfDicts []map[string]interface{}
 	err = json.Unmarshal(linksoutput, &linksOfDicts)
 	if err != nil {
@@ -204,32 +177,3 @@ func GetCreateInvFromNetbox() {
 	createInventory(listOfDicts, linksOfDicts, "inventory_global.json", "all")
 	createInventory(listOfDicts, linksOfDicts, "inventory.json", "NA")
 }
-
-// func main() {
-
-// 	cmd := exec.Command("python", "get_update_inventory.py", "get_devices_data", "output.json")
-// 	// output, err := cmd.Output()
-// 	output, err := cmd.CombinedOutput()
-// 	if err != nil {
-// 		fmt.Println("Error executing Python script:", err)
-// 		return
-// 	}
-// 	var listOfDicts []map[string]interface{}
-// 	err = json.Unmarshal(output, &listOfDicts)
-// 	if err != nil {
-// 		fmt.Println("Error parsing JSON:", err)
-// 		return
-// 	}
-// 	createInventory(listOfDicts, "inventory_global.json", "all")
-// 	createInventory(listOfDicts, "inventory.json", "NA")
-
-// 	update_cmd := exec.Command("python", "get_update_inventory.py", "update_devices_data", "output.json")
-// 	// output, err := cmd.Output()
-// 	update_output, err := update_cmd.CombinedOutput()
-// 	if err != nil {
-// 		fmt.Println("Error executing Python script:", err)
-// 		return
-// 	} else {
-// 		fmt.Println("Update successfully completed:", string(update_output))
-// 	}
-// }
