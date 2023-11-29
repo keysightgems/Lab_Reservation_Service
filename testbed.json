@@ -1,0 +1,30 @@
+{
+    "desc": "testbed",
+    "devices": {
+        "absd1": {
+            "name": "absd1",
+            "attributes": {
+                "vendor": "CISCO"},
+            "ports": {
+                "port1" : {
+                    "name": "port1"                    
+                }
+            }
+        },
+        "absd2": {
+            "name": "absd2",
+            "ports": {
+                "port1": {
+                    "name": "port1"
+                }
+            }
+        }
+    },
+    "links": [
+        {
+            "src": "absd1:port1",
+            "dst": "absd2:port1"
+        }
+    ]
+}
+

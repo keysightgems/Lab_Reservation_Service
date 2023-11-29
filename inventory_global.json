@@ -1,0 +1,140 @@
+{
+    "desc": "Inventory",
+    "devices": {
+        "Device1": {
+            "id": 15,
+            "name": "Device1",
+            "state": "Available",
+            "attributes": {
+                "vendor": "KEYSIGHT",
+                "type": "TGEN"
+            },
+            "interfaces": [
+                {
+                    "attributes": {
+                        "speed": "S_100G"
+                    },
+                    "name": "gig0/0"
+                },
+                {
+                    "attributes": {
+                        "speed": null
+                    },
+                    "name": "giga0/2"
+                }
+            ]
+        },
+        "Device2": {
+            "id": 16,
+            "name": "Device2",
+            "state": "Available",
+            "attributes": {
+                "vendor": "CISCO",
+                "type": "ATE"
+            },
+            "interfaces": [
+                {
+                    "attributes": {
+                        "speed": null
+                    },
+                    "name": "gig0/1"
+                },
+                {
+                    "attributes": {
+                        "speed": null
+                    },
+                    "name": "giga0/3"
+                }
+            ]
+        },
+        "Device3": {
+            "id": 17,
+            "name": "Device3",
+            "state": "Available",
+            "attributes": {
+                "vendor": "CISCO",
+                "type": "DUT"
+            },
+            "interfaces": [
+                {
+                    "attributes": {
+                        "speed": null
+                    },
+                    "name": "port1"
+                }
+            ]
+        },
+        "Device4": {
+            "id": 18,
+            "name": "Device4",
+            "state": "Available",
+            "attributes": {
+                "vendor": "CISCO",
+                "type": "ATE"
+            },
+            "interfaces": [
+                {
+                    "attributes": {
+                        "speed": null
+                    },
+                    "name": "port2"
+                }
+            ]
+        },
+        "Device5": {
+            "id": 19,
+            "name": "Device5",
+            "state": "Available",
+            "attributes": {
+                "vendor": "KEYSIGHT",
+                "type": "TGEN"
+            },
+            "interfaces": [
+                {}
+            ]
+        },
+        "test1": {
+            "id": 20,
+            "name": "test1",
+            "state": "hes",
+            "attributes": {
+                "vendor": "KEYSIGHT",
+                "type": "TGEN"
+            },
+            "interfaces": [
+                {}
+            ]
+        },
+        "test2": {
+            "id": 21,
+            "name": "test2",
+            "state": "None",
+            "attributes": {
+                "vendor": "KEYSIGHT",
+                "type": "TGEN"
+            },
+            "interfaces": [
+                {}
+            ]
+        }
+    },
+    "links": [
+        {
+            "dst": "Device2:gig0/1",
+            "src": "Device1:gig0/0"
+        },
+        {
+            "dst": "Device2:giga0/3",
+            "src": "Device1:giga0/2"
+        },
+        {
+            "dst": "Device1:gig0/0",
+            "src": "Device2:gig0/1"
+        },
+        {
+            "dst": "Device1:giga0/2",
+            "src": "Device2:giga0/3"
+        },
+        {}
+    ]
+}

@@ -1,0 +1,93 @@
+{
+    "desc": "Inventory",
+    "Devices": {
+        "duts": [
+            {
+                "id": 1,
+                "name": "Device1",
+                "type": "Router",
+                "location": "Room A",
+                "attributes": {
+                    "vendor": "cisco"
+                },
+                "interfaces": [
+                    {
+                        "name": "eth0",
+                        "speed": 1000,
+                        "status": "Up"
+                    },
+                    {
+                        "name": "eth1",
+                        "speed": 100,
+                        "status": "Down"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "name": "Device2",
+                "type": "Switch",
+                "location": "Room B",
+                "attributes": {
+                    "vendor": "cisco"
+                },
+                "interfaces": [
+                    {
+                        "name": "eth0",
+                        "speed": 100,
+                        "status": "Up"
+                    },
+                    {
+                        "name": "eth1",
+                        "speed": 1000,
+                        "status": "Up"
+                    }
+                ]
+            }
+        ],
+        "aets": [
+            {
+                "id": 1,
+                "name": "Device1",
+                "type": "Router",
+                "location": "Room A",
+                "attributes": {
+                    "vendor": "cisco"
+                },
+                "interfaces": [
+                    {
+                        "name": "eth0",
+                        "speed": 1000,
+                        "status": "Up"
+                    },
+                    {
+                        "name": "eth1",
+                        "speed": 100,
+                        "status": "Down"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "name": "Device2",
+                "type": "Switch",
+                "location": "Room B",
+                "attributes": {
+                    "vendor": "cisco"
+                },
+                "interfaces": [
+                    {
+                        "name": "eth0",
+                        "speed": 100,
+                        "status": "Up"
+                    },
+                    {
+                        "name": "eth1",
+                        "speed": 1000,
+                        "status": "Up"
+                    }
+                ]
+            }
+        ]
+    }
+}
