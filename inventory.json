@@ -134,7 +134,6 @@
         {
             "dst": "Device1:giga0/2",
             "src": "Device2:giga0/3"
-        },
-        {}
+        }
     ]
 }
