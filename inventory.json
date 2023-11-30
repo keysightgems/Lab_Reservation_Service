@@ -12,13 +12,13 @@
             "interfaces": [
                 {
                     "attributes": {
-                        "speed": "S_100G"
+                        "speed": "speed_100_gbps"
                     },
                     "name": "gig0/0"
                 },
                 {
                     "attributes": {
-                        "speed": null
+                        "speed": "speed_100_gbps"
                     },
                     "name": "giga0/2"
                 }
@@ -30,18 +30,18 @@
             "state": "Available",
             "attributes": {
                 "vendor": "CISCO",
-                "type": "ATE"
+                "type": "DUT"
             },
             "interfaces": [
                 {
                     "attributes": {
-                        "speed": null
+                        "speed": "speed_100_gbps"
                     },
                     "name": "gig0/1"
                 },
                 {
                     "attributes": {
-                        "speed": null
+                        "speed": "speed_100_gbps"
                     },
                     "name": "giga0/3"
                 }
@@ -70,7 +70,7 @@
             "state": "Available",
             "attributes": {
                 "vendor": "CISCO",
-                "type": "ATE"
+                "type": "DUT"
             },
             "interfaces": [
                 {

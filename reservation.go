@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"lablrs/utils"
 	"log"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	graph "github.com/openconfig/ondatra/binding/portgraph"
 )
 
@@ -64,8 +66,132 @@ type Port struct {
 	Attrs map[string]string `json:"attributes"`
 }
 
+type InputAttributes struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type InputInterface struct {
+	Attributes []InputAttributes `json:"attributes,omitempty"`
+	Name       string            `json:"name"`
+	Speed      string            `json:"speed,omitempty"`
+}
+
+type InputDevice struct {
+	Interfaces []InputInterface `json:"interfaces"`
+	Model      string           `json:"model"`
+	Name       string           `json:"name"`
+	Vendor     string           `json:"vendor"`
+}
+
+type InputLink struct {
+	Dst string `json:"dst"`
+	Src string `json:"src"`
+}
+
+type InputData struct {
+	Devices []InputDevice `json:"devices"`
+	Links   []InputLink   `json:"links"`
+}
+
 func uploadInventory() {
 	loadConcreteGraph()
+}
+
+func ConvertData(srcData InputData) Testbed {
+	destData := Testbed{
+		Desc:    "testbed",
+		Devices: make(map[string]BDevice),
+	}
+	deviceNameMap := make(map[string]string)
+	for _, srcDevice := range srcData.Devices {
+		destDevice := BDevice{
+			Name:  srcDevice.Name,
+			Attrs: make(map[string]string),
+			Ports: make(map[string]Port),
+		}
+
+		// Process device attributes
+		if srcDevice.Vendor != "" {
+			destDevice.Attrs["vendor"] = srcDevice.Vendor
+		}
+
+		// Process interfaces
+		for _, srcInterface := range srcDevice.Interfaces {
+			destPort := Port{
+				Name:  srcInterface.Name,
+				Attrs: make(map[string]string),
+			}
+
+			// Process interface attributes
+			for _, srcAttr := range srcInterface.Attributes {
+				destPort.Attrs[srcAttr.Name] = srcAttr.Value
+			}
+
+			// Process speed attribute
+			if srcInterface.Speed != "" {
+				destPort.Attrs["speed"] = srcInterface.Speed
+			}
+
+			destDevice.Ports[srcInterface.Name] = destPort
+		}
+
+		destData.Devices[srcDevice.Name] = destDevice
+		// Create a mapping of old device names to new ones
+		deviceNameMap[srcDevice.Name] = destDevice.Name
+	}
+
+	// Process links
+	for _, srcLink := range srcData.Links {
+		// Update device names in the links based on the mapping
+		srcDeviceName := parseLink(srcLink.Src)
+		dstDeviceName := parseLink(srcLink.Dst)
+
+		srcDeviceName = deviceNameMap[srcDeviceName]
+		dstDeviceName = deviceNameMap[dstDeviceName]
+		srcPortName := srcLink.Src
+		dstPortName := srcLink.Dst
+
+		destLink := Link{
+			Src: fmt.Sprintf("%s:%s", srcDeviceName, srcPortName),
+			Dst: fmt.Sprintf("%s:%s", dstDeviceName, dstPortName),
+		}
+		destData.Links = append(destData.Links, destLink)
+	}
+
+	return destData
+}
+
+// parseLink splits the link string into device and port parts
+func parseLink(link string) string {
+	parts := splitLink(link)
+	// return parts[0], parts[1]  // here return both device and interface names
+	return parts[0]
+}
+
+// splitLink splits the link string into device and port parts
+func splitLink(link string) []string {
+	return split(link, "_")
+}
+
+// split is a helper function to split a string based on a separator
+func split(s, sep string) []string {
+	return append([]string{}, append([]string(nil), splitSlice(s, sep)...)...)
+}
+
+// splitSlice is a helper function to split a string based on a separator
+func splitSlice(s, sep string) []string {
+	i := 0
+	for {
+		if i+len(sep) > len(s) {
+			break
+		}
+		if s[i:i+len(sep)] == sep {
+			return append([]string{s[:i]}, splitSlice(s[i+len(sep):], sep)...)
+		}
+		i++
+	}
+	return append([]string{s}, []string{}...)
 }
 
 func loadConcreteGraph() {
@@ -87,7 +213,6 @@ func loadConcreteGraph() {
 		if device.Attrs == nil {
 			device.Attrs = map[string]string{}
 		}
-		// device.Attrs["type"] = "DUT"
 		device.Attrs["reserved"] = "no"
 		newNode := &graph.ConcreteNode{Desc: dname, Ports: ports, Attrs: device.Attrs}
 		nodes = append(nodes, newNode)
@@ -100,22 +225,15 @@ func loadConcreteGraph() {
 	inventory.Edges = edges
 }
 
-func reserve() {
-	testbedConfig := Testbed{}
-	testbed := graph.AbstractGraph{}
-	filePath := "testbed.json"
-	jsonData, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		fmt.Println("Error reading file:", err)
+func reserve(c *gin.Context) {
+	testbedData := InputData{}
+	if err := c.BindJSON(&testbedData); err != nil {
 		return
 	}
 
-	// Unmarshalling JSON data into the inventoryConfig object
-	err = json.Unmarshal(jsonData, &testbedConfig)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		return
-	}
+	testbedConfig := ConvertData(testbedData)
+
+	testbed := graph.AbstractGraph{}
 	loadAbstractGraph(testbedConfig, &testbed)
 	assignment, err := graph.Solve(context.Background(), &testbed, &inventory)
 	if err != nil {
@@ -143,6 +261,8 @@ func reserve() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	utils.UpdateInventory()
+	c.IndentedJSON(http.StatusCreated, Testbed{Devices: devices, Links: links})
 }
 
 func loadAbstractGraph(testbedConfig Testbed, testbed *graph.AbstractGraph) {
@@ -200,9 +320,9 @@ func main() {
 	inventory = graph.ConcreteGraph{}
 	configNodesToDevices = map[*graph.ConcreteNode]Device{}
 	configPortsToPorts = map[*graph.ConcretePort]Interface{}
-	// uploadInventory(&gin.Context{})
-	// reserve(&gin.Context{})
 	uploadInventory()
-	reserve()
-	utils.UpdateInventory()
+	// reserve()
+	router := gin.Default()
+	router.POST("/reserve", reserve)
+	router.Run(":8080")
 }

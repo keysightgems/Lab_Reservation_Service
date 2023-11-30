@@ -237,11 +237,11 @@ func getDevicesData() []byte {
 						speed := iface["speed"].(float64)
 						switch speed {
 						case 100000000:
-							iface["speed"] = "S_100G"
+							iface["speed"] = "speed_100_gbps"
 						case 200000000:
-							iface["speed"] = "S_200G"
+							iface["speed"] = "speed_200_gbps"
 						case 400000000:
-							iface["speed"] = "S_400G"
+							iface["speed"] = "speed_400_gbps"
 						}
 					}
 					interfaceDict = append(interfaceDict, map[string]interface{}{

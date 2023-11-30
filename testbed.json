@@ -1,30 +1,34 @@
 {
-    "desc": "testbed",
-    "devices": {
-        "absd1": {
-            "name": "absd1",
-            "attributes": {
-                "vendor": "CISCO"},
-            "ports": {
-                "port1" : {
-                    "name": "port1"                    
+    "devices": [
+        {
+            "interfaces": [
+                {
+                    "media": "fiber",
+                    "name": "d1_intf1",
+                    "speed": "speed_100_gbps"
                 }
-            }
+            ],
+            "model": "DUT",
+            "name": "d1",
+            "platform": "Cisco"
         },
-        "absd2": {
-            "name": "absd2",
-            "ports": {
-                "port1": {
-                    "name": "port1"
+        {
+            "interfaces": [
+                {
+                    "media": "fiber",
+                    "name": "d2_intf1",
+                    "speed": "speed_100_gbps"
                 }
-            }
+            ],
+            "model": "TGEN",
+            "name": "d2",
+            "platform": "OTG"
         }
-    },
+    ],
     "links": [
         {
-            "src": "absd1:port1",
-            "dst": "absd2:port1"
+            "dst": "d2_intf1",
+            "src": "d1_intf1"
         }
     ]
 }
-
